@@ -1,0 +1,43 @@
+# Paths to the directories to save wallpapers (at least one of them must exist). For example:
+# paths: ["d:/Wallpapers", "/mnt/d/Wallpapers"]
+# OR
+# paths:
+#   - "d:/Wallpapers"
+#   - "/mnt/d/Wallpapers"
+# Providing two or more paths is a good idea if you are using the same script and wallpaper directory
+# from several operating systems.
+# If no path is specified then directory "randomwallpapers" will be created in current working directory
+paths: []
+
+# List of desired screen resolution(s) - you can leave it clear or write it like this:
+# resolutions: ["1366x768", "1920x1080"]
+# OR
+# resolutions:
+#   - "1366x768"
+#   - "1920x1080"
+# If only one resolution is specified than all images with at least such resolution will be searched
+resolutions: []
+
+# List of desired screen ratio(s) - you can leave it clear or write it like this:
+# ratios: ["16x9", "4x3"]
+# OR
+# ratios:
+#   - "16x9"
+#   - "4x3"
+ratios: []
+
+# Desired categories where "100" stands for "General", "010" for "Anime" and "001" for "People".
+# Choose your combination:
+categories: "100"
+
+# Desired level of nudity where "100" stands for "SFW", "010" for "Sketchy"
+# and "001" for "NSFW" (works only with credentials or API key)
+# Choose your combination.
+purity: "100"
+
+# Credentials are needed to access the NSFW section - they will be used to get API key.
+# You can put here your credentials:
+login: ""
+password: ""
+# OR put here the API key itself (you can get it here: https://wallhaven.cc/settings/account)
+api_key: ""
