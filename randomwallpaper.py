@@ -7,6 +7,8 @@ import sys
 import requests
 import ruamel.yaml
 
+from typing import Optional
+
 from bs4 import BeautifulSoup
 
 DEFAULT_DIRECTORY = 'randomwallpapers'
@@ -65,7 +67,7 @@ def get_api_key(login, password):
         return api_key['value']
 
 
-def parse_config():
+def parse_config() -> Optional[dict]:
     """
     Analyze config file
     :return: parsed config (dict)
@@ -75,13 +77,13 @@ def parse_config():
         with open(config_path, 'rt', encoding='utf-8') as config_file:
             config = yaml.load(config_file)
     except OSError:
-        logger.error('Config file {} does not exist'.format(config_path))
-        return False
+        logger.error('Cannot open config file {}'.format(config_path))
+        return None
     except (ruamel.yaml.constructor.DuplicateKeyError,
             ruamel.yaml.scanner.ScannerError,
             ruamel.yaml.parser.ParserError) as error:
         logger.error('Failed to parse config {}:\n{}'.format(config_path, error))
-        return False
+        return None
     else:
         parsed_config = dict()
 
@@ -94,7 +96,7 @@ def parse_config():
                     break
             else:
                 logger.error('No valid path was found in the config file {}'.format(config_path))
-                return False
+                return None
         else:
             # Try default if no path is configured:
             path = pathlib.Path.cwd() / DEFAULT_DIRECTORY
@@ -104,7 +106,7 @@ def parse_config():
                     logger.info('Created the directory in default path: {}'.format(path))
                 except OSError:
                     logger.error('Failed to create directory in default path: {}'.format(path))
-                    return False
+                    return None
         parsed_config['path'] = path
 
         # Optional sections:
@@ -126,24 +128,24 @@ def parse_config():
                     logger.error('Failed to get API key, credentials which were provided '
                                  'in the config file {} may be invalid or page parsing failed.\nYou still can '
                                  'paste your API key into the config manually'.format(config_path))
-                    return False
+                    return None
                 else:
                     logger.info('Your API key: {}'.format(parsed_config['api_key']))
             else:
                 logger.error('NSFW purity was checked but no API key or credentials '
                              'were provided in the config file {}'.format(config_path))
-                return False
+                return None
 
         parsed_config['purity'] = config['purity']
 
     except KeyError as error:
         logger.error('Looks like your config file {} is malformed: {}'.format(config_path, error))
-        return False
+        return None
 
     return parsed_config
 
 
-def get_wallpaper(config):
+def get_wallpaper(config: dict) -> Optional[str]:
     """
     Find and download random wallpaper
     :param config: Dictionary with config
@@ -182,17 +184,20 @@ def get_wallpaper(config):
             logger.error('API key can be invalid:\n{}'.format(r.json().get('error')))
         else:
             logger.error('Got unexpected result:\n{}'.format(r.text))
-        return False
+        return None
 
-    logger.info('Downloading wallpaper: {}'.format(image['url']))
+    logger.info(f'Downloading wallpaper: {image["url"]}')
 
     # Downloading the image:
     r = s.get(image['path'], params=payload, timeout=30)
     logger.info('Downloaded successfully!')
 
     output_path = config['path'] / pathlib.Path(image['path']).name
-    with open(output_path, 'wb') as output_file:
-        output_file.write(r.content)
+    try:
+        with open(output_path, 'wb') as output_file:
+            output_file.write(r.content)
+    except OSError as error:
+        logger.error(f'Failed to write file {output_path}:\n{error}')
 
     return output_path
 
@@ -229,6 +234,9 @@ def main():
 
     if path:
         set_wallpaper(path)
+        sys.exit(0)
+
+    sys.exit(1)
 
 
 if __name__ == "__main__":

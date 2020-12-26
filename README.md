@@ -8,7 +8,7 @@ You can:
 
 Prerequisites:
 * Python 3.4+
-* `pip3 install -r requirements.txt`
+* `pip install -r requirements.txt`
 * _(optional)_ Send provided .bat/.sh script to the system startup
 
 Tested on:
